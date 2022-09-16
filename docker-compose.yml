@@ -1,0 +1,21 @@
+version: '3'
+services:
+
+  database:
+    image: 'mongo:4.4.6'
+    container_name: 'vunga-mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=vunga
+      - MONGO_INITDB_ROOT_USERNAME=vunga
+      - MONGO_INITDB_ROOT_PASSWORD=vunga
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongo-data:/data/db
+    ports:
+      - '27017:27017'
+
+  cache:
+    image: 'redis'
+    container_name: 'vunga-redis'
+    ports:
+      - '6379:6379'
