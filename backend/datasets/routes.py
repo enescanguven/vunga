@@ -1,4 +1,5 @@
 from contextlib import closing
+import re
 from signal import SIGKILL
 import socket
 from flask import Blueprint, current_app, request
@@ -10,12 +11,13 @@ from os import kill
 datasets_bp = Blueprint('datasets_bp', __name__, template_folder='templates')
 
 @datasets_bp.route('/datasets', methods=['POST'])
-def train_model():
-    train_config = request.get_json()
+def dataset_upload():
     
+    print(request.f["file"])
+        
     try:
-        job_id = str(current_app.config["celery"].send_task(
-            "cyberdroid_tasks.train", args=[train_config]))
+        file = request.files['file']
+        print(file)
 
         return {"port": "Model"}, 200
 

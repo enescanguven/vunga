@@ -13,16 +13,19 @@ import { useState, useEffect, useRef } from 'react'
 
 const InfluencerPage = () => {
   const [symbol, setSymbol] = useState('')
+  
+
   const handleItemClick = (e) => {
     console.log(e)
+    const formData = new FormData();
+    formData.append("file", e);
+
     axios
-      .post(process.env.REACT_APP_API_BASE_URL + `/datasets`, { symbol: e })
+      .post(process.env.REACT_APP_API_BASE_URL + `/datasets`, formData)
       .then((res) => {
         console.log(res)
       })
       .catch((error) => {
-        console.log(e)
-        addToast(error_handling(error))
       })
   }
   
