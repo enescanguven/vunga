@@ -26,5 +26,6 @@ def get_all_trainings():
 def start_training():
     db = current_app.config["db_conn"]
     trainings = db["trainings"]
+    print(request.json)
 
     return 'Start Training'

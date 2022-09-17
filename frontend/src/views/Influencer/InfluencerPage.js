@@ -23,21 +23,21 @@ const InfluencerPage = () => {
     formData.append("file", e.target.files[0]);
     console.log(e.target.files[0].name)
     formData.append("fileName", e.target.files[0].name);
-    
 
-   
+
+
     const config = {
       headers: {
         'content-type': 'multipart/form-data',
       },
     };
     axios.post(process.env.REACT_APP_API_BASE_URL + `/datasets`, formData, config)
-    .then((response) => {
-      console.log(response.data);
-    }).catch((error) => {
-    })
+      .then((response) => {
+        console.log(response.data);
+      }).catch((error) => {
+      })
   }
-  
+
 
   return (
     <>
@@ -45,31 +45,31 @@ const InfluencerPage = () => {
 
       <CRow>
         <CCol md={6}>
-          <CCard>
+          <CRow>
             <div>
 
 
               <form>
-                <input onChange={handleItemClick} type="file"/>
+                <input onChange={handleItemClick} type="file" />
               </form>
 
             </div>
 
             <div>
-      <select class="form-select" aria-label="Default select example">
-              <option selected>Select a Detection Model to Train with</option>
-              <option value="1">Yolov5</option>
-              <option value="2">Yolov3</option>
-              <option value="3">Yolo</option>
-      </select>
-      </div>
-          </CCard>
+              <select class="form-select" aria-label="Default select example">
+                <option selected>Select a Detection Model to Train with</option>
+                <option value="1">Yolov5</option>
+                <option value="2">Yolov3</option>
+                <option value="3">Yolo</option>
+              </select>
+            </div>
+          </CRow>
 
         </CCol>
-        
+
       </CRow>
 
-      
+
     </>
   )
 }
