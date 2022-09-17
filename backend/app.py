@@ -22,15 +22,15 @@ app = Flask(__name__)
 CORS(app)
 
 
-app.config["celery1"] = client1 = Celery(
-    "vunga_tasks_1",
+app.config["celery"] = client1 = Celery(
+    "vunga_tasks",
     broker=f"redis://{os.getenv('REDIS_HOST')}/1",
     backend=f"redis://{os.getenv('REDIS_HOST')}/1")
 
-app.config["celery2"] = client2 = Celery(
-    "vunga_tasks_2",
-    broker=f"redis://{os.getenv('REDIS_HOST')}/2",
-    backend=f"redis://{os.getenv('REDIS_HOST')}/2")
+# app.config["celery2"] = client2 = Celery(
+#     "vunga_tasks_2",
+#     broker=f"redis://{os.getenv('REDIS_HOST')}/2",
+#     backend=f"redis://{os.getenv('REDIS_HOST')}/2")
 
 
 app.config["cortex_redis"] = redis.StrictRedis(
