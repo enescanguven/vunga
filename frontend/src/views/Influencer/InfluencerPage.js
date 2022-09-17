@@ -13,20 +13,29 @@ import { useState, useEffect, useRef } from 'react'
 
 const InfluencerPage = () => {
   const [symbol, setSymbol] = useState('')
-  
+  const [file, setFile] = useState()
 
   const handleItemClick = (e) => {
-    console.log(e)
-    const formData = new FormData();
-    formData.append("file", e);
+    console.log(e.target.files[0])
 
-    axios
-      .post(process.env.REACT_APP_API_BASE_URL + `/datasets`, formData)
-      .then((res) => {
-        console.log(res)
-      })
-      .catch((error) => {
-      })
+    setFile(e.target.files[0])
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+    console.log(e.target.files[0].name)
+    formData.append("fileName", e.target.files[0].name);
+    
+
+   
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    };
+    axios.post(process.env.REACT_APP_API_BASE_URL + `/datasets`, formData, config)
+    .then((response) => {
+      console.log(response.data);
+    }).catch((error) => {
+    })
   }
   
 
@@ -39,12 +48,10 @@ const InfluencerPage = () => {
           <CCard>
             <div>
 
-              <CFormLabel htmlFor="formFileLg">Select a file to upload</CFormLabel>
 
-              <CInputGroup className="mb-3">
-                <CFormInput type='file' onChange={(e) => setSymbol(e.target.value)} placeholder="Username" />
-                <CButton onClick={() => handleItemClick(symbol)}>Upload</CButton>
-              </CInputGroup>
+              <form>
+                <input onChange={handleItemClick} type="file"/>
+              </form>
 
             </div>
 
