@@ -27,10 +27,13 @@ def inference():
         'port': available_port, 'status': 'running'}
     inference_config['port'] = available_port
     print('selam')
-    process = Popen(['python3', '../websocket/time.py'], shell=True, start_new_session=True,
-                    stdout=PIPE, stderr=PIPE)
-    print(process.pid)
-    port_map[inference_config['client_id']]['pid'] = process.pid
+    cmd = 'nohup python3 inference/websocket.py -p '+str(available_port)+' &'
+    print(cmd)
+    os.system(cmd)
+    # process = Popen(['python3', 'websocket.py', '-p', str(available_port)], shell=True, start_new_session=True,
+    #                 stdout=PIPE, stderr=PIPE)
+    # print(process.pid)
+    # port_map[inference_config['client_id']]['pid'] = process.pid
 
     print('selam2')
     # stdout, stderr = process.communicate()
