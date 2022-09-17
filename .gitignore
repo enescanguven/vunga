@@ -2,3 +2,6 @@
 */*/__pycache__
 */__pycache__
 /backend/nohub.out
+data/VOCtrainval_06-Nov-2007.tar
+data/celery.txt
+data/test.tar
