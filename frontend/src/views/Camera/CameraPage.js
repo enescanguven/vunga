@@ -21,6 +21,9 @@ const videoConstraints = {
     height: 240,
     facingMode: "user"
 };
+
+
+
 const CameraPage = () => {
 
     const [isPaused, setPause] = useState(false);
@@ -42,6 +45,7 @@ const CameraPage = () => {
 
 
     function startCamera() {
+        
 
         // if (isPaused)
 
@@ -52,6 +56,13 @@ const CameraPage = () => {
             'client_id': client_id.slice(0, 4),
             'model_id': model
         }
+
+
+
+
+
+
+
 
         function isOpen(ws) { return ws.readyState === ws.OPEN }
 
@@ -82,7 +93,32 @@ const CameraPage = () => {
                         console.log('wsClient connected')
                         wsClient.send(getFrame());
                         wsClient.onmessage = (event) => {
-                            console.log(event.data)
+                            console.log(event.data[0])
+
+                            var cnvs = document.getElementById("myCanvas");
+                            var ctx = cnvs.getContext("2d");
+                            ctx.clearRect(0,0, webcamRef.current.video.videoWidth,webcamRef.current.video.videoHeight);
+                        
+                            let bboxLeft = event.data[0]["bboxLeft"];
+                            let bboxTop = event.data[0]["bboxTop"];
+                            let bboxWidth = event.data[0]["bboxWidth"];
+                            let bboxHeight = event.data[0]["bboxHeight"];
+                            console.log("bboxLeft: " + bboxLeft);
+                            console.log("bboxTop: " + bboxTop);
+                            console.log("bboxWidth: " + bboxWidth);
+                            console.log("bboxHeight: " + bboxHeight);
+                        
+                        
+                            ctx.beginPath();
+                            ctx.font = "28px Arial";
+                            ctx.fillStyle = "red";
+                        
+                            ctx.rect(bboxLeft, bboxTop, bboxWidth, bboxHeight);
+                            ctx.strokeStyle = "#FF0000";
+                            ctx.lineWidth = 3;
+                            ctx.stroke();
+                        
+                            console.log("detected");
                         }
                     }
 
@@ -90,6 +126,10 @@ const CameraPage = () => {
                 }
             }, 1000);
             console.log('wsClient cikti')
+
+
+
+            
 
 
             // var refreshIntervalnew = setInterval(() => {
@@ -156,6 +196,7 @@ const CameraPage = () => {
     //     [webcamRef]
     // );
 
+
     return (
         <>
 
@@ -192,6 +233,7 @@ const CameraPage = () => {
                 </CCol>
             </CRow>
             <CRow>
+                
                 <Webcam
                     audio={false}
                     height={720}
@@ -200,6 +242,15 @@ const CameraPage = () => {
                     width={1080}
                     videoConstraints={videoConstraints}
                 />
+
+                <div style={{ position: "absolute", top: "400px", zIndex: "9999" }}>
+                <canvas
+                id="myCanvas"
+                width={1080}
+                height={720}
+                style={{ backgroundColor: "transparent" }}
+                />
+                </div>
             </CRow>
 
         </>
