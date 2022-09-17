@@ -1,0 +1,10 @@
+celery==5.2.7
+Flask==2.2.2
+flask_cors==3.0.10
+mtcnn==0.1.1
+numpy==1.23.3
+opencv_python==4.6.0.66
+pandas==1.4.4
+pymongo==4.2.0
+redis==4.3.4
+websockets==10.3

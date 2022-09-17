@@ -24,8 +24,19 @@ def get_all_trainings():
 
 @training_bp.route('/training/start', methods=['POST'])
 def start_training():
-    db = current_app.config["db_conn"]
-    trainings = db["trainings"]
-    print(request.json)
+    try:
+        db = current_app.config["db_conn"]
+        trainings = db["trainings"]
+        print(request.json['dataset'])
+        print(request.json['model'])
+        # print(current_app.config["celery"])
+        job_id = str(current_app.config["celery"].send_task(
+            "vunga_tasks.train", args=[request.json['dataset'], request.json['model']]))
 
-    return 'Start Training'
+        return 'Start Training'
+    except Exception as e:
+        print(str(e))
+        return {
+            "status": "fail",
+            "reason": str(e),
+        }, 500

@@ -7,10 +7,11 @@ import requests
 import time
 from TrainContext import TrainContext
 
-client1 = Celery(
-    "vunga_tasks_1",
-    broker=f"redis://{os.getenv('REDIS_HOST')}/1",
-    backend=f"redis://{os.getenv('REDIS_HOST')}/1")
+client = Celery(
+    "vunga_tasks",
+    broker=f"redis://{os.getenv('REDIS_HOST')}/0",
+    backend=f"redis://{os.getenv('REDIS_HOST')}/0")
+
 
 def initialize():
     try:
@@ -34,8 +35,11 @@ def initialize():
     return db, r
 
 
-@client1.task
-def train(train_conf, celery):
-    train = TrainContext(train_conf, celery)
-    train.train_test()
-    print("train begin")
+@client.task
+def train(dataset, model):
+    print("Training started")
+    print(model)
+    print(dataset)
+    # train = TrainContext(train_conf, celery)
+    # train.train_test()
+    # print("train begin")
