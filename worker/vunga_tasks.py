@@ -5,10 +5,17 @@ import redis
 from celery import Celery
 import requests
 import time
-client = Celery(
-    "crn_kapar_tasks",
-    broker=f"redis://{os.getenv('REDIS_HOST')}/0",
-    backend=f"redis://{os.getenv('REDIS_HOST')}/0")
+from InferenceContext import InferenceContext
+
+client1 = Celery(
+    "vunga_tasks_1",
+    broker=f"redis://{os.getenv('REDIS_HOST')}/1",
+    backend=f"redis://{os.getenv('REDIS_HOST')}/1")
+
+client2 = Celery(
+    "vunga_tasks_2",
+    broker=f"redis://{os.getenv('REDIS_HOST')}/2",
+    backend=f"redis://{os.getenv('REDIS_HOST')}/2")
 
 
 def initialize():
@@ -33,18 +40,15 @@ def initialize():
     return db, r
 
 
-@client.task
-def inference_1(inference_conf):
+@client1.task
+def inference(inference_conf, celery):
+    inference = InferenceContext(inference_conf, celery)
+    inference.predict()
     print("inference begin")
 
-@client.task
-def inference_2():
-    print("inference begin")
 
-@client.task
-def trainference_3():
-    print("inference begin")
-
-@client.task
-def trainference_4():
+@client2.task
+def inference(inference_conf, celery):
+    inference = InferenceContext(inference_conf, celery)
+    inference.predict()
     print("inference begin")

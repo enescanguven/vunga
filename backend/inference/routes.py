@@ -1,36 +1,44 @@
+from contextlib import closing
+from signal import SIGKILL
+import socket
 from flask import Blueprint, current_app, request
-from flask import Flask
-from flask_cors import CORS, cross_origin
 from celery import Celery
 import os
+from subprocess import Popen, PIPE
+from os import kill
 
 inference_bp = Blueprint('inference_bp', __name__, template_folder='templates')
 
+port_map = {}
 
 
-db = current_app.config['db_conn']
-celery = Celery(
-    "crn_kapar_tasks",
-    broker=f"redis://{os.getenv('REDIS_HOST')}/0",
-    backend=f"redis://{os.getenv('REDIS_HOST')}/0")
-
-app = Flask(__name__)
-CORS(app, supports_credentials=True)
+def find_free_port():
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(('', 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
 
 
 @inference_bp.route('/inference', methods=['POST'])
 def inference():
-    client_dict = {"clientID":"port"}
-    
-    try:
-        clientID = request.json["clientID"]
-        if (clientID in client_dict.keys):
-            client_port = client_dict[clientID]
+    available_port = find_free_port()
+    inference_config = request.get_json()
+    port_map[inference_config['client_id']] = {
+        'port': available_port, 'status': 'running'}
+    inference_config['port'] = available_port
+    print('selam')
+    process = Popen(['python3', '../websocket/time.py'], shell=True, start_new_session=True,
+                    stdout=PIPE, stderr=PIPE)
+    print(process.pid)
+    port_map[inference_config['client_id']]['pid'] = process.pid
 
-        job_id_1 = str(celery.send_task(
-        "vunga_tasks.inference_1", args=[]).id)
-        
-        return {"status": "success"}, 200
+    print('selam2')
+    # stdout, stderr = process.communicate()
+    # print(stdout)
+    print(inference_config)
+    print(port_map)
+    try:
+        return {"port": available_port}, 200
 
     except Exception as e:
         print(str(e))
@@ -39,3 +47,23 @@ def inference():
             "reason": str(e),
         }, 500
 
+# celery = current_app.config['celery']
+
+
+@inference_bp.route('/inference/<client_id>', methods=['GET'])
+def get_inference_status(client_id):
+    if client_id in port_map:
+        return port_map[client_id], 200
+    else:
+        return {"status": "fail", "reason": "client_id not found"}, 404
+
+
+@inference_bp.route('/inference/<client_id>', methods=['DELETE'])
+def stop_inference(client_id):
+    if client_id in port_map:
+        kill(port_map[client_id]['pid'], SIGKILL)
+        port_map[client_id]['status'] = 'stopped'
+
+        return {"status": "success"}, 200
+    else:
+        return {"status": "fail", "reason": "client_id not found"}, 404

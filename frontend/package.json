@@ -48,17 +48,20 @@
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-app-polyfill": "^3.0.0",
+    "react-camera-pro": "^1.2.1",
     "react-dom": "^17.0.2",
     "react-flow-renderer": "^10.0.7",
     "react-gauge-chart": "^0.4.0",
     "react-id-generator": "^3.0.2",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.2",
+    "react-uuid": "^1.0.3",
     "react-webcam": "^7.0.1",
     "redux": "4.1.2",
     "serve": "^13.0.2",
     "simple-kafka-producer": "^0.1.5",
-    "simplebar-react": "^2.3.6"
+    "simplebar-react": "^2.3.6",
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",
