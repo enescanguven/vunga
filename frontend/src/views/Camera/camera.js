@@ -7,29 +7,30 @@ import {
 } from '@coreui/react'
 import Webcam from "react-webcam";
 import React from 'react'
-
 import axios from 'axios';
 import { useId } from "react-id-generator";
-import uuid from 'react-uuid';
-
+import { Camera } from "react-camera-pro";
 
 import { useState, useEffect, useRef } from 'react';
 
-const videoConstraints = {
-    width: 426,
-    height: 240,
-    facingMode: "user"
-};
+
+
 const CameraPage = () => {
+
+    const camera = useRef(null);
+    const [image, setImage] = useState(null);
+
 
     const [isPaused, setPause] = useState(true);
     const [ws, setWs] = useState(null);
     const [streamWs, setStream] = useState(null);
     const [streamPort, setStreamPort] = useState(null);
+    const [client_id] = useId();
     const [model, setModel] = useState(null);
-    const client_id = uuid()
+    const [webcamRef2, setWebcamRef] = useState(null);
 
-    const [cameraType, setCameraType] = useState('')
+    // const [cameraType, setCameraType] = useRef(null)
+
     const models = [
         'Select Model',
         { label: 'yolov5', value: 'yolov5' },
@@ -39,29 +40,12 @@ const CameraPage = () => {
 
     ]
 
-    // console.log(isPaused)
-
-
-    function checkPause() {
-        if (isPaused) {
-            setPause(false)
-            startCamera()
-        } else {
-            setPause(true)
-        }
-        console.log(isPaused)
-    }
-
     function startCamera() {
-
-        console.log('start camera', client_id)
-
-
+        setPause(!isPaused)
         var postData = {
-            'client_id': client_id.slice(0, 4),
+            'client_id': client_id,
             'model_id': model
         }
-        // debugger
 
         axios.post(process.env.REACT_APP_API_BASE_URL + `/inference`, postData).then(res => {
             console.log(res)
@@ -79,29 +63,22 @@ const CameraPage = () => {
             console.log(err)
         })
 
-        var refreshIntervalId = setInterval(() => {
-            // ws.send(getFrame());
-            // ws.send(JSON.stringify({ type: 'pause', data: isPaused }));
-            console.log('sending frame')
-            console.log(isPaused)
-
-            // if (!isPaused) {
-            //     console.log('durmasi lazim')
-            //     clearInterval(refreshIntervalId);
-
-            // }
+        setInterval(() => {
+            ws.send(getFrame());
+            ws.send(JSON.stringify({ type: 'pause', data: isPaused }));
 
         }, 1000);
-
         console.log('camera started')
     }
 
     const getFrame = () => {
-        const frame = webcamRef.current.getScreenshot();
+        // const frame = webcamRef.current.getScreenshot();
         return JSON.stringify({ type: 'frame', data: frame });
     };
 
-    const webcamRef = useRef(null);
+
+
+
     // const capture = React.useCallback(
     //     () => {
     //         const imageSrc = webcamRef.current.getScreenshot();
@@ -140,19 +117,22 @@ const CameraPage = () => {
                 <CCol md={2}>
                     <CCard>
                         {/* <CButton color="primary" onClick={startCamera}>Start</CButton> */}
-                        <CButton onClick={() => checkPause()}>{isPaused ? 'Resume' : 'Pause'}</CButton>
+                        <CButton onClick={() => startCamera()}>{isPaused ? 'Resume' : 'Pause'}</CButton>
                     </CCard>
                 </CCol>
             </CRow>
             <CRow>
-                <Webcam
+                <Camera ref={camera} />
+                {/* <Webcam
                     audio={false}
-                    height={videoConstraints.height}
-                    ref={webcamRef}
+                    // height={videoConstraints.height}
+                    height={720}
+                    ref={webcamRef2}
                     screenshotFormat="image/png"
-                    width={videoConstraints.width}
+                    width={1080}
+                    // {videoConstraints.width}
                     videoConstraints={videoConstraints}
-                />
+                /> */}
             </CRow>
 
         </>
