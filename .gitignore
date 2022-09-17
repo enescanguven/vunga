@@ -1,4 +1,4 @@
 /mongo-data
 */*/__pycache__
 */__pycache__
-/backend/nohub.out
+/backend/nohup.out
