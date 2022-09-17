@@ -14,6 +14,7 @@ import uuid from 'react-uuid';
 
 
 import { useState, useEffect, useRef } from 'react';
+import { Celebration } from '@mui/icons-material';
 
 const videoConstraints = {
     width: 426,
@@ -22,7 +23,7 @@ const videoConstraints = {
 };
 const CameraPage = () => {
 
-    const [isPaused, setPause] = useState(true);
+    const [isPaused, setPause] = useState(false);
     const [ws, setWs] = useState(null);
     const [streamWs, setStream] = useState(null);
     const [streamPort, setStreamPort] = useState(null);
@@ -39,61 +40,107 @@ const CameraPage = () => {
 
     ]
 
-    // console.log(isPaused)
-
-
-    function checkPause() {
-        if (isPaused) {
-            setPause(false)
-            startCamera()
-        } else {
-            setPause(true)
-        }
-        console.log(isPaused)
-    }
 
     function startCamera() {
 
-        console.log('start camera', client_id)
+        // if (isPaused)
+
+        //     console.log('start camera', client_id)
 
 
         var postData = {
             'client_id': client_id.slice(0, 4),
             'model_id': model
         }
-        // debugger
+
+        function isOpen(ws) { return ws.readyState === ws.OPEN }
 
         axios.post(process.env.REACT_APP_API_BASE_URL + `/inference`, postData).then(res => {
-            console.log(res)
-            setStreamPort(res.data.port)
-            const wsClient = new WebSocket('ws://' + process.env.REACT_APP_API_BASE_URL + ':' + res.data.port);
+            console.log(res.data.port)
+            console.log(process.env.REACT_APP_WS_BASE_URL)
+            // const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + ":3131");
+            const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
 
-            wsClient.onopen = () => {
-                console.log('ws opened');
-                setWs(wsClient);
-                // setStream(wsClient);
-            };
-            wsClient.onclose = () => console.log('ws closed');
+            // setWs(new WebSocket(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`))
+            console.log(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
+
+            var refreshIntervalId = setInterval(() => {
+                console.log('refreshing');
+                if (isOpen(wsClient)) {
+                    console.log('sending data')
+                    wsClient.send(getFrame());
+
+
+
+                }
+                else {
+                    console.log('reconnecting')
+                    // console.log('ws', process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
+                    // const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + ":3131");
+                    const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
+                    wsClient.onopen = () => {
+                        console.log('wsClient connected')
+                        wsClient.send(getFrame());
+                        wsClient.onmessage = (event) => {
+                            console.log(event.data)
+                        }
+                    }
+
+
+                }
+            }, 1000);
+            console.log('wsClient cikti')
+
+
+            // var refreshIntervalnew = setInterval(() => {
+            //     wsClient.send(getFrame());
+            //     wsClient.onmessage = (event) => {
+            //         console.log(event.data)
+            //     }
+
+            //     console.log('sending frame', res.data.port)
+            // }, 1000);
+
+            // wsClient.onopen = () => {
+            //     console.log('ws opened');
+            // };
+            // wsClient.onclose = () => console.log('ws closed');
+
+            // // while (!isOpen(wsClient)) {
+            // //     console.log('waiting')
+            // //     const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + "3131");
+
+            // // }
+
+
+            // // wsClient.onclose = () => console.log('ws closed');
+
+
+            // setStream(new WebSocket(`ws://localhost:${streamPort}`))
 
         }).catch(err => {
             console.log(err)
         })
 
-        var refreshIntervalId = setInterval(() => {
-            // ws.send(getFrame());
-            // ws.send(JSON.stringify({ type: 'pause', data: isPaused }));
-            console.log('sending frame')
-            console.log(isPaused)
+        // console.log('start camera')
+        // const wsClient = new WebSocket('wss://10.0.10.109:3131');
+        // wsClient.onopen = () => {
+        //     console.log('ws opened');
+        // };
+        // wsClient.onclose = () => console.log('ws closed');
 
-            // if (!isPaused) {
-            //     console.log('durmasi lazim')
-            //     clearInterval(refreshIntervalId);
 
-            // }
+        // var refreshIntervalId = setInterval(() => {
+        //     wsClient.send(getFrame());
+        //     wsClient.onmessage = (event) => {
+        //         console.log(event.data)
+        //     }
+        //     // wsClient.send(JSON.stringify({ type: 'pause', data: getFrame().data }));
+        //     console.log('sending frame')
 
-        }, 1000);
+        // }, 1000);
 
-        console.log('camera started')
+        // console.log('camera started')
     }
 
     const getFrame = () => {
@@ -139,18 +186,18 @@ const CameraPage = () => {
                 </CCol>
                 <CCol md={2}>
                     <CCard>
-                        {/* <CButton color="primary" onClick={startCamera}>Start</CButton> */}
-                        <CButton onClick={() => checkPause()}>{isPaused ? 'Resume' : 'Pause'}</CButton>
+                        <CButton color="primary" onClick={startCamera}>Start</CButton>
+                        {/* <CButton onClick={() => setPause(!isPaused)}>{isPaused ? 'Resume' : 'Pause'}</CButton> */}
                     </CCard>
                 </CCol>
             </CRow>
             <CRow>
                 <Webcam
                     audio={false}
-                    height={videoConstraints.height}
+                    height={720}
                     ref={webcamRef}
                     screenshotFormat="image/png"
-                    width={videoConstraints.width}
+                    width={1080}
                     videoConstraints={videoConstraints}
                 />
             </CRow>
