@@ -11,7 +11,9 @@ import sys
 import pandas as pd
 
 from training.routes import training_bp
-# from influencer.routes import influencer_bp
+
+from inference.routes import inference_bp
+
 # from stock.stockRoutes import stock_bp
 # from model.modelRoutes import model_bp
 
