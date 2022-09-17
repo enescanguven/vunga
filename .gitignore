@@ -5,3 +5,4 @@
 data/VOCtrainval_06-Nov-2007.tar
 data/celery.txt
 data/test.tar
+/backend/nohup.out
