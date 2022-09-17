@@ -4,13 +4,27 @@ import {
   CCard,
   CRow,
   CFormLabel,
-  CFormInput
+  CFormInput,
+  CInputGroup,
+  CButton
 } from '@coreui/react'
-
-import UploadService from "../../services/upload-files-service";
+import axios from 'axios';
+import { useState, useEffect, useRef } from 'react'
 
 const InfluencerPage = () => {
-
+  const [symbol, setSymbol] = useState('')
+  const handleItemClick = (e) => {
+    console.log(e)
+    axios
+      .post(process.env.REACT_APP_API_BASE_URL + `/datasets`, { symbol: e })
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((error) => {
+        console.log(e)
+        addToast(error_handling(error))
+      })
+  }
   
 
   return (
@@ -24,7 +38,10 @@ const InfluencerPage = () => {
 
               <CFormLabel htmlFor="formFileLg">Select a file to upload</CFormLabel>
 
-              <CFormInput type="file" size="lg" id="formFileLg"/>
+              <CInputGroup className="mb-3">
+                <CFormInput type='file' onChange={(e) => setSymbol(e.target.value)} placeholder="Username" />
+                <CButton onClick={() => handleItemClick(symbol)}>Upload</CButton>
+              </CInputGroup>
 
             </div>
 
