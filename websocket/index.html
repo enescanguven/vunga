@@ -98,9 +98,9 @@
             ws.send({ "type": "start" });
 
             setInterval(() => {
+                ws.send(getFrame());
 
                 ws.onmessage = (event) => {
-                    ws.send(getFrame());
                     handleCanvas(JSON.parse(event.data));
                 }
             }, 1000 / FPS);

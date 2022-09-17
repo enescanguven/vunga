@@ -24,10 +24,11 @@ const _nav = [
   //     to: '/admin',
   //     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
   //   },
+
   {
     component: CNavItem,
-    name: 'Stock',
-    to: '/stock',
+    name: 'Camera',
+    to: '/camera',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
   {
