@@ -12,6 +12,7 @@ import pandas as pd
 
 from training.routes import training_bp
 from inference.routes import inference_bp
+from datasets.routes import datasets_bp
 
 # from stock.stockRoutes import stock_bp
 # from model.modelRoutes import model_bp
@@ -38,6 +39,7 @@ app.config["cortex_redis"] = redis.StrictRedis(
 
 app.register_blueprint(training_bp)
 app.register_blueprint(inference_bp)
+app.register_blueprint(datasets_bp)
 # app.register_blueprint(stock_bp)
 # app.register_blueprint(model_bp)
 

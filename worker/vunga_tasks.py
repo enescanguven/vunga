@@ -5,18 +5,12 @@ import redis
 from celery import Celery
 import requests
 import time
-from InferenceContext import InferenceContext
+from TrainContext import TrainContext
 
 client1 = Celery(
     "vunga_tasks_1",
     broker=f"redis://{os.getenv('REDIS_HOST')}/1",
     backend=f"redis://{os.getenv('REDIS_HOST')}/1")
-
-client2 = Celery(
-    "vunga_tasks_2",
-    broker=f"redis://{os.getenv('REDIS_HOST')}/2",
-    backend=f"redis://{os.getenv('REDIS_HOST')}/2")
-
 
 def initialize():
     try:
@@ -41,14 +35,7 @@ def initialize():
 
 
 @client1.task
-def inference(inference_conf, celery):
-    inference = InferenceContext(inference_conf, celery)
-    inference.predict()
-    print("inference begin")
-
-
-@client2.task
-def inference(inference_conf, celery):
-    inference = InferenceContext(inference_conf, celery)
-    inference.predict()
-    print("inference begin")
+def train(train_conf, celery):
+    train = TrainContext(train_conf, celery)
+    train.train_test()
+    print("train begin")
