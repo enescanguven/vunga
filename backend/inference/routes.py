@@ -21,7 +21,7 @@ def find_free_port():
 
 @inference_bp.route('/inference', methods=['POST'])
 def inference():
-    available_port = find_free_port()
+    available_port = 3131
     inference_config = request.get_json()
     port_map[inference_config['client_id']] = {
         'port': available_port, 'status': 'running'}
@@ -29,7 +29,7 @@ def inference():
     print('selam')
     cmd = 'nohup python3 inference/websocket.py -p '+str(available_port)+' &'
     print(cmd)
-    os.system(cmd)
+    # os.system(cmd)
     # process = Popen(['python3', 'websocket.py', '-p', str(available_port)], shell=True, start_new_session=True,
     #                 stdout=PIPE, stderr=PIPE)
     # print(process.pid)
