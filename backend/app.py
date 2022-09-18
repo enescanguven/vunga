@@ -66,10 +66,21 @@ def get_file(filename):  # pragma: no cover
     except IOError as exc:
         return str(exc)
 
-@app.route('/camera', methods=['GET'])
+@app.route('/camera/model yolo', methods=['GET'])
 def metrics():  # pragma: no cover
     content = get_file('index.html')
     return Response(content, mimetype="text/html")
+
+@app.route('/camera/model cnn/port <port>', methods=['GET'])
+def cnn(port):  # pragma: no cover
+    content = get_file('index_cnn.html')
+    return Response(content, mimetype="text/html")
+
+@app.route('/camera/model yolo/port <port>', methods=['GET'])
+def yolo_model(port):  # pragma: no cover
+    content = get_file('index.html')
+    return Response(content, mimetype="text/html")
+
 
 if __name__ == '__main__':
     print(os.getenv("MONGO_HOST"))

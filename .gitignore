@@ -8,3 +8,4 @@ data/test.tar
 /backend/nohup.out
 /data
 /worker/datasets
+/datasets

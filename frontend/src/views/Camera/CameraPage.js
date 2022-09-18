@@ -30,19 +30,36 @@ const CameraPage = () => {
     const [ws, setWs] = useState(null);
     const [streamWs, setStream] = useState(null);
     const [streamPort, setStreamPort] = useState(null);
-    const [model, setModel] = useState(null);
+    const [model, setModel] = useState('');
     const client_id = uuid()
 
     const [cameraType, setCameraType] = useState('')
     const models = [
         'Select Model',
-        { label: 'yolov5', value: 'yolov5' },
-        { label: 'yolov2', value: 'yolov4' },
-        { label: 'MTCnn', value: 'mtcnn' },
-        { label: 'Haar-Cascade', value: 'haar' }
+        { label: 'yolov5n', value: 'yolov5n' },
+        { label: 'yolov5s', value: 'yolov5s' },
+        { label: 'yolov5m', value: 'yolov5m' },
+        { label: 'yolov5l', value: 'yolov5l' },
+        { label: 'MTCnn', value: 'cnn' },
 
     ]
+    var postData = {
+        'client_id': client_id.slice(0, 4),
+        'model': model
+    }
 
+    function directTo() {
+
+        axios.post(process.env.REACT_APP_API_BASE_URL + `/inference`, postData).then(res => {
+            console.log(res.data)
+            console.log(typeof model)
+            window.location.href = process.env.REACT_APP_API_BASE_URL + `/camera/model `+model.slice(0,4)+`/port `+res.data.port
+            console.log(res.data)
+            console.log(typeof model)
+            console.log(model.slice(4))
+        })
+        
+    }
 
     function startCamera() {
         
@@ -52,11 +69,7 @@ const CameraPage = () => {
         //     console.log('start camera', client_id)
 
 
-        var postData = {
-            'client_id': client_id.slice(0, 4),
-            'model_id': model
-        }
-
+     
 
 
 
@@ -75,56 +88,7 @@ const CameraPage = () => {
             // setWs(new WebSocket(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`))
             console.log(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
 
-            var refreshIntervalId = setInterval(() => {
-                console.log('refreshing');
-                if (isOpen(wsClient)) {
-                    console.log('sending data')
-                    wsClient.send(getFrame());
 
-
-
-                }
-                else {
-                    console.log('reconnecting')
-                    // console.log('ws', process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
-                    // const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + ":3131");
-                    const wsClient = new WebSocket(process.env.REACT_APP_WS_BASE_URL + `:${res.data.port}`)
-                    wsClient.onopen = () => {
-                        console.log('wsClient connected')
-                        wsClient.send(getFrame());
-                        wsClient.onmessage = (event) => {
-                            console.log(event.data[0])
-
-                            var cnvs = document.getElementById("myCanvas");
-                            var ctx = cnvs.getContext("2d");
-                            ctx.clearRect(0,0, webcamRef.current.video.videoWidth,webcamRef.current.video.videoHeight);
-                        
-                            let bboxLeft = event.data[0]["bboxLeft"];
-                            let bboxTop = event.data[0]["bboxTop"];
-                            let bboxWidth = event.data[0]["bboxWidth"];
-                            let bboxHeight = event.data[0]["bboxHeight"];
-                            console.log("bboxLeft: " + bboxLeft);
-                            console.log("bboxTop: " + bboxTop);
-                            console.log("bboxWidth: " + bboxWidth);
-                            console.log("bboxHeight: " + bboxHeight);
-                        
-                        
-                            ctx.beginPath();
-                            ctx.font = "28px Arial";
-                            ctx.fillStyle = "red";
-                        
-                            ctx.rect(bboxLeft, bboxTop, bboxWidth, bboxHeight);
-                            ctx.strokeStyle = "#FF0000";
-                            ctx.lineWidth = 3;
-                            ctx.stroke();
-                        
-                            console.log("detected");
-                        }
-                    }
-
-
-                }
-            }, 1000);
             console.log('wsClient cikti')
 
 
@@ -226,10 +190,17 @@ const CameraPage = () => {
                     </CCard>
                 </CCol>
                 <CCol md={2}>
-                    <CCard>
+                        <CRow>
+                            <CCol>
                         <CButton color="primary" onClick={startCamera}>Start</CButton>
+
+                            </CCol>
+                            <CCol>
+                            <CButton color="primary" onClick={directTo}>Direct</CButton>
+
+                            </CCol>
+                        </CRow>
                         {/* <CButton onClick={() => setPause(!isPaused)}>{isPaused ? 'Resume' : 'Pause'}</CButton> */}
-                    </CCard>
                 </CCol>
             </CRow>
             <CRow>

@@ -11,11 +11,17 @@ import base64
 import base64
 from PIL import Image
 import numpy as np
+import argparse
 
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--port", required=True, help="sayi giriniz")
+ap.add_argument("-m", "--model", required=True, help="sayi giriniz")
+
+args = vars(ap.parse_args())
 import torch
 
 # Model
-model = torch.hub.load('ultralytics/yolov5', 'yolov5n')  # or yolov5n - yolov5x6, custom
+model = torch.hub.load('ultralytics/yolov5', args['model'])  # or yolov5n - yolov5x6, custom
 
 
 async def time(websocket, path):
@@ -46,6 +52,6 @@ async def time(websocket, path):
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 ssl_context.load_cert_chain(
     './cert.pem', './key.pem')
-start_server = websockets.serve(time, "0.0.0.0", 5858, ssl=ssl_context)
+start_server = websockets.serve(time, "0.0.0.0", args['port'], ssl=ssl_context)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

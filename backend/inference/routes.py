@@ -16,20 +16,68 @@ def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
         s.bind(('', 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+        port = s.getsockname()[1]
+        while port <=10000:
+            port = s.getsockname()[1]
+        
+        return port
+        
 
+
+# @inference_bp.route('/inference', methods=['POST'])
+# def inference():
+#     available_port = 3131
+#     inference_config = request.get_json()
+#     port_map[inference_config['client_id']] = {
+#         'port': available_port, 'status': 'running'}
+#     inference_config['port'] = available_port
+#     print('selam')
+#     cmd = 'nohup python3 inference/websocket.py -p '+str(available_port)+' &'
+#     print(cmd)
+#     # os.system(cmd)
+#     # process = Popen(['python3', 'websocket.py', '-p', str(available_port)], shell=True, start_new_session=True,
+#     #                 stdout=PIPE, stderr=PIPE)
+#     # print(process.pid)
+#     # port_map[inference_config['client_id']]['pid'] = process.pid
+
+#     print('selam2')
+#     # stdout, stderr = process.communicate()
+#     # print(stdout)
+#     print(inference_config)
+#     print(port_map)
+#     try:
+#         return {"port": available_port}, 200
+
+#     except Exception as e:
+#         print(str(e))
+#         return {
+#             "status": "fail",
+#             "reason": str(e),
+#         }, 500
 
 @inference_bp.route('/inference', methods=['POST'])
 def inference():
-    available_port = 3131
+
+    available_port = find_free_port()
+    print(available_port)
+        
     inference_config = request.get_json()
+
     port_map[inference_config['client_id']] = {
         'port': available_port, 'status': 'running'}
     inference_config['port'] = available_port
-    print('selam')
-    cmd = 'nohup python3 inference/websocket.py -p '+str(available_port)+' &'
-    print(cmd)
-    # os.system(cmd)
+    print(inference_config['model'])
+    
+    if 'yolo' in inference_config['model']:
+
+        print('yolo')
+        cmd = 'nohup python3 inference/ws_yolo.py -p '+str(available_port)+' -m '+str(inference_config['model'])+' &'
+        print(cmd)
+        os.system(cmd)
+    else:
+        cmd = 'nohup python3 inference/websocket.py -p '+str(available_port)+' &'
+        print(cmd)
+        os.system(cmd)
     # process = Popen(['python3', 'websocket.py', '-p', str(available_port)], shell=True, start_new_session=True,
     #                 stdout=PIPE, stderr=PIPE)
     # print(process.pid)
@@ -50,7 +98,8 @@ def inference():
             "reason": str(e),
         }, 500
 
-# celery = current_app.config['celery']
+
+
 
 
 @inference_bp.route('/inference/<client_id>', methods=['GET'])

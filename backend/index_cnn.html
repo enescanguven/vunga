@@ -1,0 +1,118 @@
+<html>
+
+<head>
+    <title>Streamer</title>
+    <style>
+        body {
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <video autoplay></video>
+    <script>
+        // get video dom element
+        const video = document.querySelector('video');
+
+        // request access to webcam
+        navigator.mediaDevices.getUserMedia({ video: { width: 426, height: 240 } }).then((stream) => video.srcObject = stream);
+        var canvas = document.createElement('canvas');
+        var ctx1 = canvas.getContext('2d');
+
+
+        var drawCanvas = document.createElement('canvas');
+        document.body.appendChild(drawCanvas);
+        var ctx2 = drawCanvas.getContext('2d');
+        drawCanvas.width = 426;
+        drawCanvas.height = 240;
+
+        ctx2.lineWidth = "4";
+        ctx2.strokeStyle = "red";
+        ctx2.font = "20px Verdana";
+        ctx2.fillStyle = "red";
+
+
+        // returns a frame encoded in base64
+        const getFrame = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx1.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+
+
+            const data = canvas.toDataURL('image/png');
+            return data;
+        }
+
+        function drawBoxes(objects) {
+
+            //clear the previous drawings
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+
+            //filter out objects that contain a class_name and then draw boxes and labels on each
+            objects.filter(object => object.class_name).forEach(object => {
+
+                let x = object.x * drawCanvas.width;
+                let y = object.y * drawCanvas.height;
+                let width = (object.width * drawCanvas.width) - x;
+                let height = (object.height * drawCanvas.height) - y;
+
+                //flip the x axis if local video is mirrored
+                if (mirror) {
+                    x = drawCanvas.width - (x + width)
+                }
+
+                drawCtx.fillText(object.class_name + " - " + Math.round(object.score * 100, 1) + "%", x + 5, y + 20);
+                drawCtx.strokeRect(x, y, width, height);
+
+            });
+        }
+
+        const handleCanvas = (data) => {
+            ctx2.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            console.log(data);
+            nose_point_x = data.keypoints.nose[0];
+            nose_point_y = data.keypoints.nose[1];
+            const frame = ctx1.getImageData(0, 0, canvas.width, canvas.height);
+            const data_frame = frame.data;
+            var idata = new ImageData(data_frame, 426, 240);
+            // console.log(idata);
+            ctx2.strokeRect(nose_point_x, nose_point_y, 30, 30);
+
+        }
+
+
+        let port = window.location.href.slice(-5);
+
+        const WS_URL = 'wss://10.0.10.118:' + port;
+        const FPS = 1;
+        setTimeout(()=>{
+            console.log("open");
+        },5000);
+        const ws = new WebSocket(WS_URL);
+        
+
+        ws.onopen = () => {
+            console.log(`Connected to ${WS_URL}`);
+            ws.send({ "type": "start" });
+
+            setInterval(() => {
+                ws.send(getFrame());
+
+                ws.onmessage = (event) => {
+                    handleCanvas(JSON.parse(event.data));
+                }
+            }, 1000 / FPS);
+            console.log(`Sending frames at ${FPS} FPS`);
+        }
+    </script>
+</body>
+
+</html>

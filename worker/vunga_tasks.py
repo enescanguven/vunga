@@ -6,7 +6,8 @@ from celery import Celery
 import requests
 import time
 from TrainContext import TrainContext
-
+from yolov5.train import main 
+from yolov5.train import parse_opt
 client = Celery(
     "vunga_tasks",
     broker=f"redis://{os.getenv('REDIS_HOST')}/0",
@@ -37,9 +38,16 @@ def initialize():
 
 @client.task
 def train(dataset, model):
-    print("Training started")
-    print(model)
-    print(dataset)
+    cmd = "python3 yolov5/train.py --data coco.yaml --cfg yolov5n.yaml --weights '' --batch-size 128"
+    os.system(cmd)
+
+    # opt = parse_opt()
+    # main(opt)
+    # print("Training started")
+
+
+    # print(model)
+    # print(dataset)
     # train = TrainContext(train_conf, celery)
     # train.train_test()
     # print("train begin")

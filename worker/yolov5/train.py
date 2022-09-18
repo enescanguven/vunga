@@ -627,4 +627,6 @@ def run(**kwargs):
 
 if __name__ == "__main__":
     opt = parse_opt()
+    print('---------')
+    print(opt)
     main(opt)
