@@ -38,8 +38,18 @@ def initialize():
 
 @client.task
 def train(dataset, model):
-    cmd = "python3 yolov5/train.py --data coco.yaml --cfg yolov5n.yaml --weights '' --batch-size 128"
+    db, r = initialize()
+    trainings = db["trainings"]
+    print("Training started")
+    print(dataset.split('/')[0])
+    print(model)
+    print(list(trainings.find({})))
+    trainings.insert_one({"dataset":dataset,"model":model,"status":"started",'created_at':time.time(),'progress':20})
+    cmd = "python3 yolov5/train.py --data"+dataset.split('/')[0]+" --cfg "+model+" --weights '' --batch-size 128"
     os.system(cmd)
+    trainings.insert_one({"dataset":dataset,"model":model,"status":"started",'time':time.time(),'progress':0})
+
+
 
     # opt = parse_opt()
     # main(opt)

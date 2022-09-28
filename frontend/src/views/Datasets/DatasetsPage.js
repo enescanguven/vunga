@@ -29,6 +29,13 @@ const DatasetsPage = () => {
   const [file, setFile] = useState()
   const [datasets, setDatasets] = useState([])
 
+  useEffect(() => {
+    axios.get(process.env.REACT_APP_API_BASE_URL + `/datasets`).then(res => {
+      setDatasets(res.data.datasets)
+    })
+  }, [])
+
+
   const handleItemClick = (e) => {
     console.log(e.target.files[0])
 

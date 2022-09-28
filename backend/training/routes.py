@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, request
 training_bp = Blueprint('training_bp', __name__, template_folder='templates')
 
 
-@training_bp.route('/training', methods=['GET'])
+@training_bp.route('/trainings', methods=['GET'])
 def get_all_trainings():
     try:
         db = current_app.config["db_conn"]

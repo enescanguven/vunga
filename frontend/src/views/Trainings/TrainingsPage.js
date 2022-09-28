@@ -35,36 +35,11 @@ const TrainingsPage = () => {
     const [models, setModels] = useState([]);
     const [selectedModel, setSelectedModels] = useState('');
     const [selectedDataset, setSelectedDataset] = useState('');
-    const statusMap = {
-        "pending": {
-            "color": "warning",
-            "percentage": 0,
-        },
-        "fetching": {
-            "color": "danger",
-            "percentage": 0
-        },
-        "training": {
-            "color": "info",
-            "percentage": 50
-        },
-        "analysing": {
-            "color": "4f5d73",
-            "percentage": 100
-        },
-        "finished": {
-            "color": "success",
-            "percentage": 100
-        },
-        "failed": {
-            "color": "danger",
-            "percentage": 100
-        }
-    }
+
     useEffect(() => {
         axios.get(process.env.REACT_APP_API_BASE_URL + `/trainings`)
             .then(res => {
-                setTrainings(res.data);
+                setTrainings(res.data.trainings);
             })
             .catch(err => {
                 console.log(err);
@@ -157,7 +132,6 @@ const TrainingsPage = () => {
                 <CTable align="middle" className="mb-0 border bg-white dark-table" hover responsive>
                     <CTableHead color="dark">
                         <CTableRow>
-                            <CTableHeaderCell className="text-center">Training ID</CTableHeaderCell>
                             <CTableHeaderCell className="text-center">Name</CTableHeaderCell>
                             <CTableHeaderCell className="text-center">Model</CTableHeaderCell>
 
@@ -170,18 +144,14 @@ const TrainingsPage = () => {
                     <CTableBody>
                         {trainings.map((item, index) => (
                             <CTableRow v-for="item in tableItems" key={index}>
-                                <CTableDataCell className='text-center' >
-                                    {item.id.slice(-12)}
+
+                                <CTableDataCell className='text-center'>
+                                    {item.model}
                                 </CTableDataCell>
                                 <CTableDataCell className='text-center'>
-                                    {item.name}
+                                    <CBadge color="success" shape="rounded-pill">{item.dataset}</CBadge>
                                 </CTableDataCell>
-                                <CTableDataCell className='text-center'>
-                                    <CBadge color="success" shape="rounded-pill">{item.data_source.name}</CBadge>
-                                </CTableDataCell>
-                                <CTableDataCell className='text-center'>
-                                    <CBadge color="info" shape="rounded-pill">{item.model.modelName}</CBadge>
-                                </CTableDataCell>
+
                                 <CTableDataCell>
                                     <div className="clearfix">
                                         <div className="float-start">
@@ -191,11 +161,9 @@ const TrainingsPage = () => {
                                             <small className="text-medium-emphasis">{item.status}</small>
                                         </div>
                                     </div>
-                                    <CProgress thin color={statusMap[item.status].color} value={item.progress} />
                                 </CTableDataCell>
                                 <CTableDataCell className='text-center'>
                                     {/* <div className="small text-medium-emphasis">Last login</div> */}
-                                    <strong>{item.created_at.slice(0, 19)}</strong>
                                 </CTableDataCell>
 
                             </CTableRow>
