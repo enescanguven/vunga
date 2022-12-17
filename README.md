@@ -1,5 +1,6 @@
 # Vunga
 Agile Video Processing Platform
+Developed for TeknasyonTech Hackathon 2022
 
 
 # Photos
